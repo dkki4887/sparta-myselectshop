@@ -34,7 +34,12 @@ public class Product extends Timestamped {
     @Column(nullable = false)
     private int myprice; //해당 가격 이하면 알림
 
-    public Product(ProductRequestDto requestDto) {
+    @ManyToOne(fetch = FetchType.LAZY) //모든 상황에서 회원 정보가 필요하지는 x
+    @JoinColumn(name="user_id", nullable = false)
+    private User user;
+
+    public Product(ProductRequestDto requestDto, User user) {
+        this.user = user;
         this.title = requestDto.getTitle();
         this.image = requestDto.getImage();
         this.link = requestDto.getLink();

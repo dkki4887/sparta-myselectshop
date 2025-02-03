@@ -4,6 +4,7 @@ import com.sparta.myselectshop.dto.ProductMypriceRequestDto;
 import com.sparta.myselectshop.dto.ProductRequestDto;
 import com.sparta.myselectshop.dto.ProductResponseDto;
 import com.sparta.myselectshop.entity.Product;
+import com.sparta.myselectshop.entity.User;
 import com.sparta.myselectshop.naver.dto.ItemDto;
 import com.sparta.myselectshop.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +22,10 @@ public class ProductService {
     public static final int MIN_MY_PRICE = 100;
 
 
-    public ProductResponseDto createProduct(ProductRequestDto productRequestDto) {
+    public ProductResponseDto createProduct(ProductRequestDto productRequestDto, User user) {
         // 받아온 DTO를 저장할 Entity 객체로 변환 -> 저장 -> controller에 반환
         //save가 객체 저장 후 해당 객체 반환해줌
-        Product product = productRepository.save(new Product(productRequestDto));
+        Product product = productRepository.save(new Product(productRequestDto, user));
         return new ProductResponseDto(product);
     }
 
@@ -41,7 +42,21 @@ public class ProductService {
         return new ProductResponseDto(product);
     }
 
-    public List<ProductResponseDto> getProducts() {
+    public List<ProductResponseDto> getProducts(User user) {
+        return productRepository.findAllByUser(user).stream()
+                .map(product -> new ProductResponseDto(product)).collect(Collectors.toList());
+    }
+
+    @Transactional //안걸면 변경감지 안일어나~
+    public void updateBySearch(Long id, ItemDto itemDto) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 상품은 존재하지 않습니다."));
+
+//        product.updateByItemDto(itemDto);
+        product.setLprice(itemDto.getLprice());
+    }
+
+    public List<ProductResponseDto> getAllProducts() {
         //For문을 사용한 getProducts
 //        List<Product> productList = productRepository.findAll();
 //
@@ -54,14 +69,5 @@ public class ProductService {
         //stream을 사용한 getProducts
         return productRepository.findAll().stream()
                 .map(product -> new ProductResponseDto(product)).collect(Collectors.toList());
-    }
-
-    @Transactional //안걸면 변경감지 안일어나~
-    public void updateBySearch(Long id, ItemDto itemDto) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 상품은 존재하지 않습니다."));
-
-//        product.updateByItemDto(itemDto);
-        product.setLprice(itemDto.getLprice());
     }
 }
