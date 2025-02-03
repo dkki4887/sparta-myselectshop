@@ -4,6 +4,7 @@ import com.sparta.myselectshop.dto.ProductMypriceRequestDto;
 import com.sparta.myselectshop.dto.ProductRequestDto;
 import com.sparta.myselectshop.dto.ProductResponseDto;
 import com.sparta.myselectshop.entity.Product;
+import com.sparta.myselectshop.naver.dto.ItemDto;
 import com.sparta.myselectshop.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ public class ProductService {
 
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
+//        product.update(requestDto);
         product.setMyprice(requestDto.getMyprice());
 
         return new ProductResponseDto(product);
@@ -52,5 +54,14 @@ public class ProductService {
         //stream을 사용한 getProducts
         return productRepository.findAll().stream()
                 .map(product -> new ProductResponseDto(product)).collect(Collectors.toList());
+    }
+
+    @Transactional //안걸면 변경감지 안일어나~
+    public void updateBySearch(Long id, ItemDto itemDto) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 상품은 존재하지 않습니다."));
+
+//        product.updateByItemDto(itemDto);
+        product.setLprice(itemDto.getLprice());
     }
 }
