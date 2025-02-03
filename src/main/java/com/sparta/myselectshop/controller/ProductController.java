@@ -8,6 +8,8 @@ import com.sparta.myselectshop.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor //필요한 생성자 자동으로 만들어줌
 @RequestMapping("/api") //중복되는 시작 경로 설정해둘 수 있음
@@ -25,5 +27,10 @@ public class ProductController {
     ///board/{id} -> @PathVariable (단일 값)
     public ProductResponseDto updateProduct(@PathVariable Long id, @RequestBody ProductMypriceRequestDto requestDto) {
         return productService.updateProduct(id, requestDto);
+    }
+
+    @GetMapping("/products")
+    public List<ProductResponseDto> getProducts() {
+        return productService.getProducts();
     }
 }
