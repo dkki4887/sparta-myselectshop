@@ -5,13 +5,17 @@ import com.sparta.myselectshop.dto.ProductRequestDto;
 import com.sparta.myselectshop.dto.ProductResponseDto;
 import com.sparta.myselectshop.entity.Product;
 import com.sparta.myselectshop.entity.User;
+import com.sparta.myselectshop.entity.UserRoleEnum;
 import com.sparta.myselectshop.naver.dto.ItemDto;
 import com.sparta.myselectshop.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,9 +46,19 @@ public class ProductService {
         return new ProductResponseDto(product);
     }
 
-    public List<ProductResponseDto> getProducts(User user) {
-        return productRepository.findAllByUser(user).stream()
-                .map(product -> new ProductResponseDto(product)).collect(Collectors.toList());
+    public Page<ProductResponseDto> getProducts(User user, int page, int size, String sortBy, boolean isAsc) {
+        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Product> products;
+        //유저 권한 확인해서 관리자면 상품 전부!
+        if(user.getRole() == UserRoleEnum.USER)
+            products = productRepository.findAllByUser(user, pageable);
+        else
+            products = productRepository.findAll(pageable);
+
+        return products.map(ProductResponseDto::new);
     }
 
     @Transactional //안걸면 변경감지 안일어나~
@@ -56,18 +70,18 @@ public class ProductService {
         product.setLprice(itemDto.getLprice());
     }
 
-    public List<ProductResponseDto> getAllProducts() {
-        //For문을 사용한 getProducts
-//        List<Product> productList = productRepository.findAll();
+//    public List<ProductResponseDto> getAllProducts() {
+//        //For문을 사용한 getProducts
+////        List<Product> productList = productRepository.findAll();
+////
+////        List<ProductResponseDto> responseDto = new ArrayList<>();
+////        for(Product product : productList)
+////            responseDto.add(new ProductResponseDto(product));
+////
+////        return responseDto;
 //
-//        List<ProductResponseDto> responseDto = new ArrayList<>();
-//        for(Product product : productList)
-//            responseDto.add(new ProductResponseDto(product));
-//
-//        return responseDto;
-
-        //stream을 사용한 getProducts
-        return productRepository.findAll().stream()
-                .map(product -> new ProductResponseDto(product)).collect(Collectors.toList());
-    }
+//        //stream을 사용한 getProducts
+//        return productRepository.findAll().stream()
+//                .map(product -> new ProductResponseDto(product)).collect(Collectors.toList());
+//    }
 }
