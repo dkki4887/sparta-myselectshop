@@ -1,10 +1,13 @@
 package com.sparta.myselectshop.controller;
 
+import com.sparta.myselectshop.Exception.RestApiException;
 import com.sparta.myselectshop.dto.FolderRequestDto;
 import com.sparta.myselectshop.dto.FolderResponseDto;
 import com.sparta.myselectshop.security.UserDetailsImpl;
 import com.sparta.myselectshop.service.FolderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +28,20 @@ public class FolderController {
     @GetMapping("/folders")
     public List<FolderResponseDto> getFolders (@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return folderService.getFolders(userDetails.getUser());
+    }
+
+    @ExceptionHandler({IllegalArgumentException.class})
+    //컨트롤러에서 이 오류가 터졌을 때 요 메소드 실행됨
+    //AOP와 동일하게 모든 메소드에 넣어줄 필요 없이 얘가 알아서 실행됨!
+    public ResponseEntity<RestApiException> handleException(IllegalArgumentException ex) {
+        System.out.println("FolderController.handleException");
+        RestApiException restApiException = new RestApiException(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(
+                // HTTP body
+                restApiException,
+                // HTTP status code
+                HttpStatus.BAD_REQUEST
+        );
     }
 
 }
