@@ -27,10 +27,11 @@ public class FolderService {
             else
                 throw new IllegalArgumentException("동일한 폴더명이 존재합니다.");
         }
+        folderRepository.saveAll(newFolderList);
     }
 
     public List<FolderResponseDto> getFolders(User user) {
-        return folderRepository.findByAllUser(user).stream()
+        return folderRepository.findAllByUser(user).stream()
                 .map(folder -> new FolderResponseDto(folder))
                 .collect(Collectors.toList());
     }
