@@ -30,18 +30,20 @@ public class FolderController {
         return folderService.getFolders(userDetails.getUser());
     }
 
-    @ExceptionHandler({IllegalArgumentException.class})
-    //컨트롤러에서 이 오류가 터졌을 때 요 메소드 실행됨
-    //AOP와 동일하게 모든 메소드에 넣어줄 필요 없이 얘가 알아서 실행됨!
-    public ResponseEntity<RestApiException> handleException(IllegalArgumentException ex) {
-        System.out.println("FolderController.handleException");
-        RestApiException restApiException = new RestApiException(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
-        return new ResponseEntity<>(
-                // HTTP body
-                restApiException,
-                // HTTP status code
-                HttpStatus.BAD_REQUEST
-        );
-    }
+
+//    GlobalExceptionHandler로 처리 할거임! AOP와 마찬가지로 동작하기 때문에 일일히 모든 컨트롤러에 예외처리 안해줘두 됨
+//    @ExceptionHandler({IllegalArgumentException.class})
+//    //컨트롤러에서 이 오류가 터졌을 때 요 메소드 실행됨
+//    //AOP와 동일하게 모든 메소드에 넣어줄 필요 없이 얘가 알아서 실행됨!
+//    public ResponseEntity<RestApiException> handleException(IllegalArgumentException ex) {
+//        System.out.println("FolderController.handleException");
+//        RestApiException restApiException = new RestApiException(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+//        return new ResponseEntity<>(
+//                // HTTP body
+//                restApiException,
+//                // HTTP status code
+//                HttpStatus.BAD_REQUEST
+//        );
+//    }
 
 }
