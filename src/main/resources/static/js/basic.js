@@ -417,6 +417,7 @@ function setMyprice() {
         },
         error(error, status, request) {
             logout();
+            // alert('틀렷어.');
         }
     })
 }
