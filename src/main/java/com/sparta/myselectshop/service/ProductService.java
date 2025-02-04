@@ -8,7 +8,6 @@ import com.sparta.myselectshop.naver.dto.ItemDto;
 import com.sparta.myselectshop.repository.FolderRepository;
 import com.sparta.myselectshop.repository.ProductFolderRepository;
 import com.sparta.myselectshop.repository.ProductRepository;
-import com.sparta.myselectshop.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,8 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -54,9 +51,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     //폴더의 정보도 같이 전달해주어야 함
     public Page<ProductResponseDto> getProducts(User user, int page, int size, String sortBy, boolean isAsc) {
-        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Sort sort = Sort.by(direction, sortBy);
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = getPageable(page, size, sortBy, isAsc);
 
         Page<Product> products;
         //유저 권한 확인해서 관리자면 상품 전부!
@@ -107,5 +102,19 @@ public class ProductService {
             throw new IllegalArgumentException("중복된 폴더입니다.");
 
         productFolderRepository.save(new ProductFolder(product, folder));
+    }
+
+    public Page<ProductResponseDto> getProductsInFolder(Long folderId, int page, int size, String sortBy, boolean isAsc, User user) {
+        Pageable pageable = getPageable(page, size, sortBy, isAsc);
+        Page<Product> productList = productRepository.findAllByUserAndProductFolderList_FolderId(user, folderId, pageable);
+
+        return productList.map(ProductResponseDto::new);
+    }
+
+    public Pageable getPageable(int page, int size, String sortBy, boolean isAsc) {
+        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+
+        return PageRequest.of(page, size, sort);
     }
 }
