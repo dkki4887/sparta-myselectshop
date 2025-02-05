@@ -1,1 +1,1 @@
-# sparta-myselectshop
+카카오 로그인: 로컬 서버가 아닌 배포 서버에서 동작할 수 있도록 url 수정
