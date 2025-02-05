@@ -418,6 +418,8 @@ function setMyprice() {
             window.location.reload();
         },
         error(error, status, request) {
+            // console.log(error.responseJSON.errorMessage);
+            alert(error.responseJSON.errorMessage);
             logout();
         }
     })
